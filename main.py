@@ -623,49 +623,53 @@ async def main():
                     game_started = True
                     # Skip the rest of the loop to get next event
                     continue
-            update = False
-            keys = pygame.key.get_pressed()
-            # q quits the game if not running in a browser
-            if keys[pygame.K_q] and not browser:
-                running = False
-            # update the screen if the button is clicked or hovered
-            if button.update(event, screen):
-                update = True
-                button.handle_event(event, screen)
-            # handle a mouse click or touch event only if the game is still in play
-            elif not board.winner and (
+        update = False
+        keys = pygame.key.get_pressed()
+        # q quits the game if not running in a browser
+        if keys[pygame.K_q] and not browser:
+            running = False
+        # update the screen if the button is clicked or hovered
+        if event and button.update(event, screen):
+            update = True
+            button.handle_event(event, screen)
+        # handle a mouse click or touch event only if the game is still in play
+        elif not board.winner and (
+            event
+            and (
                 event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.FINGERDOWN
-            ):
-                x, y = None, None
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    x, y = event.pos
-                elif event.type == pygame.FINGERDOWN:
-                    x = int(event.x * screen.get_height())
-                    y = int(event.y * screen.get_width())
-                if x and y:
-                    square = board.handle_click(x, y)
-                    # update the screen if the user clicked on a selectable square
-                    if square:
-                        square.marker = current_marker
-                        # update the current player
-                        current_marker = BLUE if current_marker == RED else RED
-                        # after a move, check if there is a winner
-                        if board.check_winner():
-                            print(f"Player {board.winner} wins!")
-                        # elif board.check_draw():
-                        #     print("It's a draw!")
-                        update = True
+            )
+        ):
+            x, y = None, None
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = event.pos
+            elif event.type == pygame.FINGERDOWN:
+                x = int(event.x * screen.get_height())
+                y = int(event.y * screen.get_width())
+            if x and y:
+                square = board.handle_click(x, y)
+                # update the screen if the user clicked on a selectable square
+                if square:
+                    square.marker = current_marker
+                    # update the current player
+                    current_marker = BLUE if current_marker == RED else RED
+                    # after a move, check if there is a winner
+                    if board.check_winner():
+                        print(f"Player {board.winner} wins!")
+                    # elif board.check_draw():
+                    #     print("It's a draw!")
+                    update = True
 
-            # the update flag prevents unnecessary redraws
-            if update:
-                update = False
-                board.draw(screen, current_marker)
-                draw_title(screen)
-                draw_footer(screen, button)
-                pygame.display.flip()
+        # the update flag prevents unnecessary redraws
+        if update:
+            event = None
+            update = False
+            board.draw(screen, current_marker)
+            draw_title(screen)
+            draw_footer(screen, button)
+            pygame.display.flip()
 
-            # Let other tasks run
-            await asyncio.sleep(0)
+        # Let other tasks run
+        await asyncio.sleep(0)
 
 
 # This is the program entry point
