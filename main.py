@@ -592,8 +592,8 @@ async def main():
     Exits the loop when the user closes the window or presses the
     'q' key when not running in a browser.
     """
-    # browser = is_running_in_browser()
-    browser = False
+    browser = is_running_in_browser()
+    # browser = False
     board = Board()
     screen = create_screen()
     current_marker = RED
